@@ -198,18 +198,18 @@ public class MainActivity extends Activity {
         p.setStrokeWidth(10);
         canvas.drawLine(-size.x, 0, size.x, 0, p);
         canvas.drawLine(-size.x, -size.y, size.x, size.y, p);
-        p.setColor(Color.WHITE);
+        p.setColor(Color.YELLOW);
         p.setTextSize(1);
         StaticLayout layout = new StaticLayout(
                 text, p, size.x, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
-        float width = size.x;
-        for (int i = layout.getLineCount(); i > 0; --i) {
+        float width = layout.getLineWidth(0);
+        for (int i = layout.getLineCount()-1; i > 0; --i) {
             float lineWidth = layout.getLineWidth(i);
             if (lineWidth > 0) {
-                width = Math.min(width, lineWidth);
+                width = Math.max(width, lineWidth);
             }
         }
-        p.setTextSize(Math.min(size.x / width, size.y / layout.getLineCount() * p.getFontSpacing())/2);
+        p.setTextSize(Math.min(size.x / width, size.y / (layout.getLineCount() * p.getFontSpacing())));
         layout = new StaticLayout(
                 text, p, canvas.getWidth(), Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
         canvas.save();
