@@ -200,14 +200,12 @@ public class MainActivity extends Activity {
         canvas.drawLine(-size.x, -size.y, size.x, size.y, p);
         p.setColor(Color.YELLOW);
         p.setTextSize(1);
+        p.setFakeBoldText(true);
         StaticLayout layout = new StaticLayout(
                 text, p, size.x, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
         float width = layout.getLineWidth(0);
         for (int i = layout.getLineCount()-1; i > 0; --i) {
-            float lineWidth = layout.getLineWidth(i);
-            if (lineWidth > 0) {
-                width = Math.max(width, lineWidth);
-            }
+            width = Math.max(width, layout.getLineWidth(i));
         }
         p.setTextSize(Math.min(size.x / width, size.y / (layout.getLineCount() * p.getFontSpacing())));
         layout = new StaticLayout(
