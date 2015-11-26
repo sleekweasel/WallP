@@ -191,14 +191,32 @@ public class MainActivity extends Activity {
         getDisplaySize(size);
         bitmap = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_4444);
         Canvas canvas = new Canvas(bitmap);
-        canvas.drawARGB(255, 28, 28, 64);
+        int backgroundHue = Color.BLACK;
+        int decorationHue = Color.BLUE;
+        int textHue = Color.YELLOW;
+        if (text.startsWith("#")) {
+            int eol = text.indexOf('\n');
+            backgroundHue = (int)(Long.parseLong(text.substring(1, eol), 16) & 0xFFFFFFFF);
+            text = text.substring(eol + 1);
+        }
+        if (text.startsWith("#")) {
+            int eol = text.indexOf('\n');
+            decorationHue = (int)(Long.parseLong(text.substring(1, eol), 16) & 0xFFFFFFFF);
+            text = text.substring(eol + 1);
+        }
+        if (text.startsWith("#")) {
+            int eol = text.indexOf('\n');
+            textHue = (int)(Long.parseLong(text.substring(1, eol), 16) & 0xFFFFFFFF);
+            text = text.substring(eol + 1);
+        }
+        canvas.drawColor(backgroundHue);
         canvas.translate(size.x / 2, size.y / 2 + getStatusBarHeight());
         TextPaint p = new TextPaint();
-        p.setColor(Color.BLUE);
+        p.setColor(decorationHue);
         p.setStrokeWidth(10);
         canvas.drawLine(-size.x, 0, size.x, 0, p);
         canvas.drawLine(-size.x, -size.y, size.x, size.y, p);
-        p.setColor(Color.YELLOW);
+        p.setColor(textHue);
         p.setTextSize(1);
         p.setFakeBoldText(true);
         StaticLayout layout = new StaticLayout(
