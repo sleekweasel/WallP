@@ -11,9 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +33,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends Activity {
@@ -121,12 +121,21 @@ public class MainActivity extends Activity {
         canvas.translate(wwidth / 2 - size.x / 2, wheight / 2 - size.y / 2 + getStatusBarHeight());
         canvas.drawBitmap(bitmap, imageMatrix, null);
         try {
-            Toast.makeText(this, "Setting wallpaper", Toast.LENGTH_SHORT).show();
-            wm.setBitmap(wallpaper);
+            setWallpaper(wm, wallpaper);
         } catch (IOException e) {
             Toast.makeText(this, "Error reverting wallpaper - " + e, Toast.LENGTH_SHORT).show();
         }
         finish();
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private void setWallpaper(WallpaperManager wm, Bitmap wallpaper) throws IOException {
+        Toast.makeText(this, "Setting wallpaper", Toast.LENGTH_SHORT).show();
+        if (BuildConfig.VERSION_CODE < 24) {
+            wm.setBitmap(wallpaper);
+        } else {
+            wm.setBitmap(wallpaper, null, false, WallpaperManager.FLAG_LOCK | WallpaperManager.FLAG_SYSTEM);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -210,12 +219,30 @@ public class MainActivity extends Activity {
             text = text.substring(eol + 1);
         }
         canvas.drawColor(backgroundHue);
+        applyClock(text, size, canvas, decorationHue);
+        applyText(text, size, canvas, textHue);
+        imageView.setImageBitmap(bitmap);
+    }
+
+    private void applyClock(String text, Point size, Canvas canvas, int decorationHue) {
+
+        Matcher matcher = Pattern.compile("\\d\\d-\\d\\d-\\d\\d\\.(\\d\\d):(\\d\\d)").matcher(text);
+
         canvas.translate(size.x / 2, size.y / 2 + getStatusBarHeight());
+
+        if (matcher.find() && matcher.groupCount() == 2) {
+            double mins = (Double.parseDouble(matcher.group(2)) / 60) * 2 * Math.PI;
+            clockHand(mins, 1, 20, size, canvas, decorationHue);
+            double hours = (Double.parseDouble(matcher.group(1)) / 12) * 2 * Math.PI + (mins / 60 / 12);
+            clockHand(hours, 0.6, 40, size, canvas, decorationHue);
+        } else {
+            clockHand(0, 2, 80, size, canvas, decorationHue);
+            clockHand(-1, 2, 40, size, canvas, decorationHue);
+        }
+    }
+
+    private void applyText(String text, Point size, Canvas canvas, int textHue) {
         TextPaint p = new TextPaint();
-        p.setColor(decorationHue);
-        p.setStrokeWidth(10);
-        canvas.drawLine(-size.x, 0, size.x, 0, p);
-        canvas.drawLine(-size.x, -size.y, size.x, size.y, p);
         p.setColor(textHue);
         p.setTextSize(1);
         p.setFakeBoldText(true);
@@ -232,7 +259,21 @@ public class MainActivity extends Activity {
         canvas.translate(-layout.getWidth() / 2, -layout.getHeight() / 2);
         layout.draw(canvas);
         canvas.restore();
-        imageView.setImageBitmap(bitmap);
+    }
+
+    private void clockHand(double hours, double handLen, int width1, Point size, Canvas canvas, int decorationHue) {
+        float hx = (float)(size.x * Math.sin(hours) * handLen);
+        float hy = (float)(size.y * Math.cos(hours) * handLen);
+        TextPaint p = new TextPaint();
+        p.setColor(Color.WHITE);
+        p.setStrokeWidth(width1 + 6);
+        canvas.drawLine(hx * -0.1F, hy * -0.1F, hx, hy, p);
+        p.setColor(Color.BLACK + 3);
+        p.setStrokeWidth(width1);
+        canvas.drawLine(hx * -0.1F, hy * -0.1F, hx, hy, p);
+        p.setColor(decorationHue);
+        p.setStrokeWidth(width1);
+        canvas.drawLine(hx * -0.1F, hy * -0.1F, hx, hy, p);
     }
 
     @Override
