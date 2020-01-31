@@ -1,6 +1,7 @@
 package uk.org.baverstock.wallp;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.WallpaperManager;
@@ -73,14 +74,14 @@ public class MainActivity extends Activity {
         });
     }
 
-//    private void hideActionBar() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//            ActionBar actionBar = getActionBar();
-//            if (actionBar != null) {
-//                actionBar.hide();
-//            }
-//        }
-//    }
+    private void hideActionBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.hide();
+            }
+        }
+    }
 
     public int getStatusBarHeight() {
         int statusBarHeight = 0;
