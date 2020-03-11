@@ -8,7 +8,7 @@ Opening an intent as follows sets the wallpaper to the given text:
     adb shell am start -a android.intent.action.MAIN  \
         -c android.intent.category.LAUNCHER \
         -n uk.org.baverstock.wallp/.MainActivity \
-        -d http://some/text/you/want/as/a/backdrop
+        -d http://#colours/then/some/text/you/want/as/a/backdrop
 
 If the first element of the text is #aarrggbb/ that sets the background colour.
 If the second element of the text is #aarrggbb/ that sets the decoration colour (the stripes).
